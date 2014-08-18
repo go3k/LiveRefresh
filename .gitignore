@@ -1,0 +1,4 @@
+# ignore XCode user workspace files
+.DS_Store
+*.xcworkspace/
+xcuserdata/
