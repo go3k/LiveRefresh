@@ -14,21 +14,42 @@
 static bool                 s_mainloop = true;
 static pthread_mutex_t		s_mainMutex;
 static pthread_cond_t		s_mainCondition;
-//
+
+//console socket
+static pthread_t            s_consoleRevThread;
 static ODSocket             s_consoleSocket;
 
-void* threadPrint(void * p)
+void* revConsoleLoop(void * p)
 {
-    int* param = (int*)p;
-    
-    int i = 0;
-    while (true) {
-        printf("thread print %d.\n", i);
-        i++;
-        if (i > 10)
+    while (true)
+    {
+        if (s_consoleSocket.Select() != 0) continue;
+        
+        const int len = 256;
+        char* buf = new char[256];
+        memset(buf, '\0', len);
+        int revlen = s_consoleSocket.Recv(buf, len, 0);
+        
+        /* 
+         如果只收到3个字符，为：
+         `> `   62,32,0        62: >, 32:空格/, 0
+         */
+        
+        if (revlen <= 0)
         {
-            pthread_exit(NULL);
+            printf("ERROR: console socket rev error.");
+            continue;
         }
+        if (buf[0] == 0x01)
+        {
+            printf("%s\n", buf + 1);
+        }
+        else
+            printf("%s", buf);
+        
+        delete [] buf;
+        
+        pthread_cond_signal(&s_mainCondition);
     }
     
     return 0;
@@ -50,60 +71,41 @@ int main(int argc, const char * argv[])
         const char * arg = argv[i];
         printf("arg = %s\n", arg);
     }
+    
+    const char* deviceip = "127.0.0.1";
+    int consolePort = 6050;
 
     pthread_mutex_init(&s_mainMutex, NULL);
     pthread_cond_init(&s_mainCondition, NULL);
     
     //====console socket====
-    //socket connect
+    //console socket connect
     s_consoleSocket.Create(AF_INET, SOCK_STREAM);
-    bool suc = s_consoleSocket.Connect("127.0.0.1", 6050);
-    printf("socket connect result = %d\n", suc);
+    bool suc = s_consoleSocket.Connect(deviceip, consolePort);
     
-    if (suc)
+    if (!suc)
     {
-        const char* cmd = "fps off\n";
-        int ret = s_consoleSocket.Send(cmd, (int)strlen(cmd));
-        
-        printf("socket send result = %d\n" ,ret);
-        
-        sleep(2);
-        
-        cmd = "fps on\n";
-        ret = s_consoleSocket.Send(cmd, (int)strlen(cmd));
-        
-        printf("socket send result = %d\n" ,ret);
+        printf("ERROR: Can't connect %s:%d\n", deviceip, consolePort);
+        return 0;
     }
     
     //receive console response thread
-    
-    
-    //while loop that wait response from 6050
-    while (true) {
-        if (s_consoleSocket.Select() != 0) continue;
-        
-        printf("Socket receive data.\n");
-        
-        //        int retlen = 0;
-    }
+    pthread_create(&s_consoleRevThread, NULL, revConsoleLoop, NULL);
     
     // insert code here...
-    printf("Hello, World!\n");
     while (s_mainloop)
     {
-        char name[256];
-        std::cin.getline(name, 256);
-        printf("getline = %s\n", name);
+        char cmdin[256], tmp[256];
+        std::cin.getline(tmp, 256);
+        sprintf(cmdin, "%s\n", tmp);
+        int ret = s_consoleSocket.Send(cmdin, (int)strlen(cmdin));
+        if (ret <= 0)
+        {
+            printf("ERROR: console command send fail.\n");
+        }
         
         pthread_cond_wait(&s_mainCondition, &s_mainMutex);
-        
-        printf("main loop end.\n");
     }
-    
-    return 0;
-    //===============
-    
-    printf("main end.\n");
     
     return 0;
 }
