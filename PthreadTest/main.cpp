@@ -10,50 +10,13 @@
 #include <string>
 #include "pthread.h"
 #include "ODSocket.h"
+#include "XOutputStream.h"
+#include "ConsoleHandler.h"
+#include "FileServerHandler.h"
 
 static bool                 s_mainloop = true;
-static pthread_mutex_t		s_mainMutex;
-static pthread_cond_t		s_mainCondition;
-
-//console socket
-static pthread_t            s_consoleRevThread;
-static ODSocket             s_consoleSocket;
-
-void* revConsoleLoop(void * p)
-{
-    while (true)
-    {
-        if (s_consoleSocket.Select() != 0) continue;
-        
-        const int len = 256;
-        char* buf = new char[256];
-        memset(buf, '\0', len);
-        int revlen = s_consoleSocket.Recv(buf, len, 0);
-        
-        /* 
-         如果只收到3个字符，为：
-         `> `   62,32,0        62: >, 32:空格/, 0
-         */
-        
-        if (revlen <= 0)
-        {
-            printf("ERROR: console socket rev error.");
-            continue;
-        }
-        if (buf[0] == 0x01)
-        {
-            printf("%s\n", buf + 1);
-        }
-        else
-            printf("%s", buf);
-        
-        delete [] buf;
-        
-        pthread_cond_signal(&s_mainCondition);
-    }
-    
-    return 0;
-}
+pthread_mutex_t             s_mainMutex;
+pthread_cond_t              s_mainCondition;
 
 /*
  1. waiting for use command
@@ -73,24 +36,20 @@ int main(int argc, const char * argv[])
     }
     
     const char* deviceip = "127.0.0.1";
-    int consolePort = 6050;
 
     pthread_mutex_init(&s_mainMutex, NULL);
     pthread_cond_init(&s_mainCondition, NULL);
     
     //====console socket====
-    //console socket connect
-    s_consoleSocket.Create(AF_INET, SOCK_STREAM);
-    bool suc = s_consoleSocket.Connect(deviceip, consolePort);
+    int consolePort = 6050;
+    bool suc = consoleSocketConnect(deviceip, consolePort);
+    if (!suc) return 0;
+    consoleRevThreadBegin();
     
-    if (!suc)
-    {
-        printf("ERROR: Can't connect %s:%d\n", deviceip, consolePort);
-        return 0;
-    }
-    
-    //receive console response thread
-    pthread_create(&s_consoleRevThread, NULL, revConsoleLoop, NULL);
+    //====file server socket====
+    int fsPort = 6060;
+    suc = fsSocketConnect(deviceip, fsPort);
+    if (!suc) return 0;
     
     // insert code here...
     while (s_mainloop)
@@ -98,10 +57,24 @@ int main(int argc, const char * argv[])
         char cmdin[256], tmp[256];
         std::cin.getline(tmp, 256);
         sprintf(cmdin, "%s\n", tmp);
-        int ret = s_consoleSocket.Send(cmdin, (int)strlen(cmdin));
-        if (ret <= 0)
+        
+        //file server command
+        bool fsCmd = false;
+        if (fsCmd)
         {
-            printf("ERROR: console command send fail.\n");
+            int ret = sendFile();
+            if (ret <= 0)
+            {
+                printf("ERROR: FileServer file send fail.\n");
+            }
+        }
+        else
+        {
+            int ret = sendConsoleCmd(cmdin);
+            if (ret <= 0)
+            {
+                printf("ERROR: console command send fail.\n");
+            }
         }
         
         pthread_cond_wait(&s_mainCondition, &s_mainMutex);
