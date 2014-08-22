@@ -15,8 +15,7 @@ static bool                 s_mainloop = true;
 pthread_mutex_t             s_mainMutex;
 pthread_cond_t              s_mainCondition;
 
-extern long getFileModifyTime(const char* file);
-extern void traverseFolder(const char* path);
+void traverseTest();
 
 /*
  1. waiting for use command
@@ -35,12 +34,7 @@ int main(int argc, const char * argv[])
         printf("arg = %s\n", arg);
     }
     
-    const char* path = "/Users/Vincent/Documents/cocos/CocosJSGame/send.test";
-    long mdtime = getFileModifyTime(path);
-    printf("send.test modify time = %ld\n", mdtime);
-    
-    traverseFolder("/Users/Vincent/Documents/cocos/CocosJSGame/");
-    
+    traverseTest();
     return 0;
     
     const char* deviceip = "127.0.0.1";
