@@ -8,9 +8,6 @@
 
 #include <iostream>
 #include <string>
-#include "pthread.h"
-#include "ODSocket.h"
-#include "XOutputStream.h"
 #include "ConsoleHandler.h"
 #include "FileServerHandler.h"
 
@@ -50,6 +47,7 @@ int main(int argc, const char * argv[])
     int fsPort = 6060;
     suc = fsSocketConnect(deviceip, fsPort);
     if (!suc) return 0;
+    fsRevThreadBegin();
     
     // insert code here...
     while (s_mainloop)
@@ -59,7 +57,7 @@ int main(int argc, const char * argv[])
         sprintf(cmdin, "%s\n", tmp);
         
         //file server command
-        bool fsCmd = false;
+        bool fsCmd = true;
         if (fsCmd)
         {
             int ret = sendFile();

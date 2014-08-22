@@ -37,6 +37,8 @@ public:
      */
     void writeData(const char* data, int pos, int len);
     
+    void writeData(unsigned char* data, long len);
+    
     void writeProtobuf(const MessageLite& msg);
 
     virtual int getDataLength();

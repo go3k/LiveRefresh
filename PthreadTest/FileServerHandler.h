@@ -13,6 +13,8 @@
 
 bool fsSocketConnect(const char* ip, int port);
 
+void fsRevThreadBegin();
+
 int sendFile();
 
 #endif /* defined(__PthreadTest__FileServerHandler__) */

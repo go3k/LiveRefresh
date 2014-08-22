@@ -97,6 +97,11 @@ void XOutputStream::writeData(const char* dt, int pos, int len)
     m_pos += len;
 }
 
+void XOutputStream::writeData(unsigned char* data, long len)
+{
+    writeData((const char*)data, getDataLength(), (int)len);
+}
+
 void XOutputStream::writeProtobuf(const MessageLite& msg)
 {
     int size = msg.ByteSize();
