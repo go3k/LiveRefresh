@@ -14,15 +14,36 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
+#include <dirent.h>
+
+void traverseFolder(const char* path)
+{
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir (path)) != NULL) {
+        /* print all the files and directories within directory */
+        while ((ent = readdir (dir)) != NULL) {
+            printf ("%s\n", ent->d_name);
+        }
+        closedir (dir);
+    } else {
+        /* could not open directory */
+        perror ("");
+//        return EXIT_FAILURE;
+    }
+}
 
 long getFileModifyTime(const char* file)
 {
-    struct tm* clock;				// create a time structure
-    struct stat attrib;			// create a file attribute structure
-    stat(file, &attrib);		// get the attributes of afile.txt
-    clock = gmtime(&(attrib.st_mtime));
+//    struct tm* clock;				// create a time structure
+    struct stat attrib;
+    if (stat(file, &attrib) == -1)
+    {
+        perror(file);
+        exit(1);
+    }
     
-    return clock->tm_gmtoff;
+    return attrib.st_mtime;
 }
 
 
