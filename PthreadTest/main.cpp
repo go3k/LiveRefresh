@@ -8,14 +8,18 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include "ConsoleHandler.h"
 #include "FileServerHandler.h"
+#include "json.h"
+#include "Utils.h"
 
 static bool                 s_mainloop = true;
 pthread_mutex_t             s_mainMutex;
 pthread_cond_t              s_mainCondition;
 
-void traverseTest();
+extern std::vector<fileinfo>        s_addFiles;
+extern std::vector<std::string>     s_rmFiles;
 
 /*
  1. waiting for use command
@@ -33,9 +37,6 @@ int main(int argc, const char * argv[])
         const char * arg = argv[i];
         printf("arg = %s\n", arg);
     }
-    
-//    traverseTest();
-//    return 0;
     
 #warning "需要检查代码，运行后CPU狂转。"
     
@@ -59,6 +60,44 @@ int main(int argc, const char * argv[])
     // insert code here...
     while (s_mainloop)
     {
+        /*
+         Handle file sync.
+         */
+        //insert file
+        for (std::vector<fileinfo>::iterator i = s_addFiles.begin();
+             i != s_addFiles.end();
+             i++)
+        {
+            sendFile(i->first.c_str(), i->second);
+        }
+        s_addFiles.clear();
+        
+        //rm file
+        if (s_rmFiles.size() > 0)
+        {
+            Json::Value request_args;
+            request_args["cmd"] = "remove";
+            Json::Value rmfiles(Json::arrayValue);
+            for (std::vector<std::string>::iterator i = s_rmFiles.begin();
+                 i != s_rmFiles.end();
+                 i++)
+            {
+                int idx = (int)(i - s_rmFiles.begin());
+                rmfiles[idx] = i->c_str();
+            }
+            request_args["files"] = rmfiles;
+//            printf("%s\n", request_args.toStyledString().c_str());
+            
+            Json::FastWriter jswriter;
+            std::string rm_cmd = jswriter.write(request_args);
+            rm_cmd.insert(0, "sendrequest ");
+            rm_cmd.append("\n");
+//            printf("%s", rm_cmd.c_str());
+            sendConsoleCmd(rm_cmd.c_str());
+            s_rmFiles.clear();
+        }
+        
+        //comman process
         char cmdin[256], tmp[256];
         std::cin.getline(tmp, 256);
         sprintf(cmdin, "%s\n", tmp);
@@ -67,7 +106,7 @@ int main(int argc, const char * argv[])
         bool fsCmd = false;
         if (fsCmd)
         {
-            int ret = sendFile();
+            int ret = sendFile("res/CloseNormal.png", 1410360830);
             if (ret <= 0)
             {
                 printf("ERROR: FileServer file send fail.\n");

@@ -18,6 +18,9 @@ extern pthread_cond_t              s_mainCondition;
 static pthread_t            s_consoleRevThread;
 static ODSocket             s_consoleSocket;
 
+std::vector<fileinfo>       s_addFiles;
+std::vector<std::string>    s_rmFiles;
+
 static bool                 s_isSendrequestCMD = false;
 
 void compareUpdateResources(fileinfoList& inapp)
@@ -32,12 +35,14 @@ void compareUpdateResources(fileinfoList& inapp)
         if (find == inapp.end()) //can't find
         {
             //write to app.
-            printf("modify  %s\n", i->first.c_str());
+            printf("add  %s\n", i->first.c_str());
+            s_addFiles.push_back(fileinfo(i->first, i->second));
         }
         else if (i->second > find->second)
         {
             //write to app
             printf("modify  %s\n", i->first.c_str());
+            s_addFiles.push_back(fileinfo(i->first, i->second));
         }
     }
     
@@ -48,6 +53,7 @@ void compareUpdateResources(fileinfoList& inapp)
         if (find == local.end())
         {
             printf("remove %s\n", i->first.c_str());
+            s_rmFiles.push_back(i->first);
         }
     }
 }

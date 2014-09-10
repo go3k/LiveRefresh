@@ -24,6 +24,7 @@ long getFileModifyTime(const char* file)
         perror(file);
         exit(1);
     }
+    
     return attrib.st_mtime;
 }
 

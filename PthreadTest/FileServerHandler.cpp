@@ -10,6 +10,7 @@
 #include "ODSocket.h"
 #include "XOutputStream.h"
 #include "Protos.pb.h"
+#include "Utils.h"
 
 extern pthread_mutex_t      s_mainMutex;
 extern pthread_cond_t       s_mainCondition;
@@ -55,7 +56,7 @@ void* revFSLoop(void * p)
             pos += 2;
             runtime::FileSendComplete fsComp;
             fsComp.ParseFromArray(pos, protulen);
-            printf("complete filename = %s, result %d, error = %d",
+            printf("complete filename = %s, result %d, error = %d \n",
                    fsComp.file_name().c_str(),
                    fsComp.result(),
                    fsComp.error_num());
@@ -86,22 +87,23 @@ void fsRevThreadBegin()
     pthread_create(&s_fsRevThread, NULL, revFSLoop, NULL);
 }
 
-int sendFile()
+int sendFile(const char* file, long time)
 {
     XOutputStream* stream = new XOutputStream(256);
     stream->writeUTF("RuntimeSend:");
     //proto count
     stream->writeShort(1);
-    //proto length
     
     runtime::FileSendProtos proto;
-    proto.set_file_name("send.test");
+    proto.set_file_name(file);
     proto.set_package_seq(1);
     proto.set_package_sum(1);
     proto.set_compress_type(runtime::FileSendProtos_CompressType_NO_COMPRESS);
     
-    const char* path = "/Users/Vincent/Documents/cocos/CocosJSGame/send.test";
-    FILE *fp = fopen(path, "r");
+    std::string fullfile = projectFolder;
+    fullfile.append("/");
+    fullfile.append(file);
+    FILE *fp = fopen(fullfile.c_str(), "r");
     unsigned long fsize;
     fseek(fp,0,SEEK_END);
     fsize = ftell(fp);
@@ -111,17 +113,21 @@ int sendFile()
     fclose(fp);
     proto.set_content_size(fsize);
     
+    unsigned long mdt = time * 1000;
+    proto.set_modified_time(mdt);
+    
+    //proto length
     stream->writeShort(proto.ByteSize());
     stream->writeProtobuf(proto);
     
+    printf("sendfile time = %llu", proto.modified_time());
+    
     //write file stream
     stream->writeData(pBuffer, fsize);
-    
-    stream->description();
+//    stream->description();
     
     int ret = s_fsSocket.Send(stream->getStreamData(), stream->getDataLength());
     
     delete stream;
-    
     return ret;
 }

@@ -13,6 +13,8 @@
 //#include <vector>
 #include <map>
 
+extern const char* projectFolder;
+
 typedef std::pair<std::string, long> fileinfo;
 typedef std::map<std::string, long> fileinfoList;
 

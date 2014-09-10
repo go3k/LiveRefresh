@@ -15,6 +15,6 @@ bool fsSocketConnect(const char* ip, int port);
 
 void fsRevThreadBegin();
 
-int sendFile();
+int sendFile(const char* file, long time);
 
 #endif /* defined(__PthreadTest__FileServerHandler__) */
