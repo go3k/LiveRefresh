@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		BF19770C199B5B090003FFC2 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF19770B199B5B090003FFC2 /* main.cpp */; };
 		BF19770E199B5B090003FFC2 /* PthreadTest.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = BF19770D199B5B090003FFC2 /* PthreadTest.1 */; };
+		BF5EDB4C19BF44B9007C1591 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF5EDB4A19BF44B9007C1591 /* Utils.cpp */; };
 		BF6766B119A6284100D238B8 /* ConsoleHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6766AF19A6284100D238B8 /* ConsoleHandler.cpp */; };
 		BF6766B419A62C3A00D238B8 /* FileServerHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6766B219A62C3A00D238B8 /* FileServerHandler.cpp */; };
 		BF8A74F519A0F69300B98E04 /* ODSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF8A74F319A0F69300B98E04 /* ODSocket.cpp */; };
@@ -49,6 +50,8 @@
 		BF197708199B5B090003FFC2 /* PthreadTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PthreadTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF19770B199B5B090003FFC2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		BF19770D199B5B090003FFC2 /* PthreadTest.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = PthreadTest.1; sourceTree = "<group>"; };
+		BF5EDB4A19BF44B9007C1591 /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
+		BF5EDB4B19BF44B9007C1591 /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		BF6766AF19A6284100D238B8 /* ConsoleHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConsoleHandler.cpp; sourceTree = "<group>"; };
 		BF6766B019A6284100D238B8 /* ConsoleHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConsoleHandler.h; sourceTree = "<group>"; };
 		BF6766B219A62C3A00D238B8 /* FileServerHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileServerHandler.cpp; sourceTree = "<group>"; };
@@ -165,6 +168,8 @@
 				BF6766B019A6284100D238B8 /* ConsoleHandler.h */,
 				BF6766B219A62C3A00D238B8 /* FileServerHandler.cpp */,
 				BF6766B319A62C3A00D238B8 /* FileServerHandler.h */,
+				BF5EDB4A19BF44B9007C1591 /* Utils.cpp */,
+				BF5EDB4B19BF44B9007C1591 /* Utils.h */,
 			);
 			path = PthreadTest;
 			sourceTree = "<group>";
@@ -349,6 +354,7 @@
 				BFAFC5FF19A4AE3200EC56EB /* Abase64.cpp in Sources */,
 				BF19770C199B5B090003FFC2 /* main.cpp in Sources */,
 				BFAFC60019A4AE3200EC56EB /* json_reader.cpp in Sources */,
+				BF5EDB4C19BF44B9007C1591 /* Utils.cpp in Sources */,
 				BFAFC60419A4AE3200EC56EB /* XOutputStream.cpp in Sources */,
 				BFAFC63B19A4B24B00EC56EB /* zero_copy_stream_impl_lite.cc in Sources */,
 				BFAFC64019A4B24B00EC56EB /* once.cc in Sources */,

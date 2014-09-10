@@ -34,8 +34,10 @@ int main(int argc, const char * argv[])
         printf("arg = %s\n", arg);
     }
     
-    traverseTest();
-    return 0;
+//    traverseTest();
+//    return 0;
+    
+#warning "需要检查代码，运行后CPU狂转。"
     
     const char* deviceip = "127.0.0.1";
 
@@ -62,7 +64,7 @@ int main(int argc, const char * argv[])
         sprintf(cmdin, "%s\n", tmp);
         
         //file server command
-        bool fsCmd = true;
+        bool fsCmd = false;
         if (fsCmd)
         {
             int ret = sendFile();
@@ -73,7 +75,16 @@ int main(int argc, const char * argv[])
         }
         else
         {
-            int ret = sendConsoleCmd(cmdin);
+            int ret = 0;
+            if (strcmp(tmp, "refresh") == 0)
+            {
+                const char* fileinfo_cmd = "sendrequest {\"cmd\":\"getfileinfo\"}\n";
+                ret = sendConsoleCmd(fileinfo_cmd);
+            }
+            else
+            {
+                ret = sendConsoleCmd(cmdin);
+            }
             if (ret <= 0)
             {
                 printf("ERROR: console command send fail.\n");
