@@ -12,12 +12,13 @@
 #include "Protos.pb.h"
 #include "Utils.h"
 
-extern pthread_mutex_t      s_mainMutex;
-extern pthread_cond_t       s_mainCondition;
+extern pthread_cond_t              s_fsCondition;
 
 //fs socket
-static pthread_t            s_fsRevThread;
-static ODSocket             s_fsSocket;
+static pthread_t                s_fsRevThread;
+static ODSocket                 s_fsSocket;
+
+extern std::vector<fileinfo>    s_addFiles;
 
 void* revFSLoop(void * p)
 {
@@ -25,47 +26,49 @@ void* revFSLoop(void * p)
     {
         if (s_fsSocket.Select() != 0) continue;
         
-        const int len = 256;
-        char* buf = new char[256];
-        memset(buf, '\0', len);
-        int revlen = s_fsSocket.Recv(buf, len, 0);
-        
-        if (revlen <= 0)
-        {
-            printf("ERROR: console socket rev error.");
-            pthread_exit(NULL);
-            return 0;
+        char startflag[13]={0};
+        s_fsSocket.Recv(startflag, sizeof(startflag) - 1);
+        if (strcmp(startflag,"RuntimeSend:") != 0){
+            continue;
         }
         
-        //parse response
-        do
+        union
         {
-            // recv start flag
-            char startflag[13]={0};
-            memcpy(startflag, buf, 12);
-            if (strcmp(startflag,"RuntimeSend:") != 0) break;
-            
-            char* pos = buf + 12;
-            unsigned short protuNum;
-            memcpy(&protuNum, pos, 2);
-            
-            pos += 2;
-            unsigned short protulen;
-            memcpy(&protulen, pos, 2);
-            
-            pos += 2;
-            runtime::FileSendComplete fsComp;
-            fsComp.ParseFromArray(pos, protulen);
-            printf("complete filename = %s, result %d, error = %d \n",
-                   fsComp.file_name().c_str(),
-                   fsComp.result(),
-                   fsComp.error_num());
-            
-        } while (false);
+            char char_type[3];
+            unsigned short uint16_type;
+        }protonum;
+        s_fsSocket.Recv(protonum.char_type, sizeof(protonum.char_type) - 1);
+        union
+        {
+            char char_type[3];
+            unsigned short uint16_type;
+        }protolength;
+        s_fsSocket.Recv(protolength.char_type, sizeof(protolength.char_type) - 1);
         
-        delete [] buf;
+        char* protoBuf = new char[protolength.uint16_type];
+        memset(protoBuf, 0, protolength.uint16_type);
+        s_fsSocket.Recv(protoBuf, protolength.uint16_type);
         
-        pthread_cond_signal(&s_mainCondition);
+        runtime::FileSendComplete fsComp;
+        fsComp.ParseFromArray(protoBuf, protolength.uint16_type);
+        printf("send file %s, result %d \n",
+               fsComp.file_name().c_str(),
+               fsComp.result());
+        delete [] protoBuf;
+        
+        for (std::vector<fileinfo>::iterator i = s_addFiles.begin(); i != s_addFiles.end(); i++)
+        {
+            if (i->first.compare(fsComp.file_name()) == 0)
+            {
+                s_addFiles.erase(i);
+                break;
+            }
+        }
+        
+        if (s_addFiles.size() <= 0)
+        {
+            pthread_cond_signal(&s_fsCondition);
+        }
     }
     return 0;
 }
@@ -119,8 +122,6 @@ int sendFile(const char* file, long time)
     //proto length
     stream->writeShort(proto.ByteSize());
     stream->writeProtobuf(proto);
-    
-    printf("sendfile time = %llu", proto.modified_time());
     
     //write file stream
     stream->writeData(pBuffer, fsize);

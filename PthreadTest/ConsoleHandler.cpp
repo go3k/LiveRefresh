@@ -10,6 +10,7 @@
 #include "ODSocket.h"
 #include "Utils.h"
 #include "json.h"
+#include <iostream>
 
 extern pthread_mutex_t             s_mainMutex;
 extern pthread_cond_t              s_mainCondition;
@@ -20,8 +21,6 @@ static ODSocket             s_consoleSocket;
 
 std::vector<fileinfo>       s_addFiles;
 std::vector<std::string>    s_rmFiles;
-
-static bool                 s_isSendrequestCMD = false;
 
 void compareUpdateResources(fileinfoList& inapp)
 {
@@ -56,6 +55,11 @@ void compareUpdateResources(fileinfoList& inapp)
             s_rmFiles.push_back(i->first);
         }
     }
+    
+    if (s_rmFiles.size() <= 0 && s_addFiles.size() <= 0)
+    {
+        printf("No files need reload.\n");
+    }
 }
 
 void* revConsoleLoop(void * p)
@@ -64,13 +68,19 @@ void* revConsoleLoop(void * p)
     {
         if (s_consoleSocket.Select() != 0) continue;
         
-        if (s_isSendrequestCMD)
+        bool resumeMain = true;
+        char check[2] = {'\0'};
+        int ret = s_consoleSocket.Recv(check, 1, 0);
+        if (ret <= 0) continue;
+        
+        if (check[0] == 0x01)
         {
             int last = 0;
             char lenbuf[64] = {'\0'};
             do
             {
-                s_consoleSocket.Recv(lenbuf + last, 1, 0);
+                int ret = s_consoleSocket.Recv(lenbuf + last, 1, 0);
+                if (ret <= 0) break;
                 if (lenbuf[last] == ' ' || lenbuf[last] == '>' || lenbuf[last] == '\n'
                     || lenbuf[last] == '\0' || lenbuf[last] == 0x01)
                 {
@@ -119,31 +129,49 @@ void* revConsoleLoop(void * p)
         }
         else
         {
-            const int len = 256;
-            char* buf = new char[len];
-            memset(buf, '\0', len);
-            int revlen = s_consoleSocket.Recv(buf, len, 0);
-            
             /*
              如果只收到3个字符，为：
              `> `   62,32,0        62: >, 32:空格/, 0
              */
-            
-            if (revlen <= 0)
+            const int plus = 256;
+            int len = plus;
+            char* buf = new char[len];
+            memset(buf, '\0', len);
+            buf[0] = check[0];
+            int last = 1;
+            do
             {
-                printf("ERROR: console socket rev error.");
-                pthread_exit(NULL);
-                return 0;
-            }
-            if (buf[0] == 0x01)
-                printf("%s\n", buf + 1);
-            else
-                printf("%s", buf);
+                int ret = s_consoleSocket.Recv(buf + last, 1, 0);
+                if (ret <= 0) break;
+                last++;
+            } while (buf[last - 1] != '\n' && buf[last - 1] != 0);
+            
+//            printf("char value = \n");
+//            for (int i = 0; i < last; i++)
+//            {
+//                printf("%c ", buf[i]);
+//            }
+//            printf("\n");
+//            printf("int value = \n");
+//            for (int i = 0; i < last; i++)
+//            {
+//                printf("%d ", buf[i]);
+//            }
+//            printf("\n");
+            
+            if (last == 3 && buf[0] == '>' && buf[1] == ' ' && buf[2] == 0)
+                resumeMain = false;
+            
+            std::cout << buf;
             
             delete [] buf;
         }
-        
-        pthread_cond_signal(&s_mainCondition);
+
+        if (resumeMain)
+        {
+            printf("resume main thread.\n");
+            pthread_cond_signal(&s_mainCondition);
+        }
     }
     
     return 0;
@@ -167,25 +195,8 @@ void consoleRevThreadBegin()
     pthread_create(&s_consoleRevThread, NULL, revConsoleLoop, NULL);
 }
 
-const char* kSendRequestCMD = "sendrequest";
-
 int sendConsoleCmd(const char* cmd)
 {
-    s_isSendrequestCMD = false;
-    if (strlen(cmd) >= strlen(kSendRequestCMD)) {
-        
-        /* 
-         if current is sendrequest cmd.
-         sendrequest must have correct args or app will crash, sendrequest can only send by
-         program, so we can ensure its args.
-        */
-        std::string str(cmd, strlen(kSendRequestCMD));
-        if (str.compare(kSendRequestCMD) == 0)
-        {
-//            printf("Current cmd is sendrequest.\n");
-            s_isSendrequestCMD = true;
-        }
-    }
     return s_consoleSocket.Send(cmd, (int)strlen(cmd));
 }
 
