@@ -22,6 +22,8 @@ static ODSocket             s_consoleSocket;
 std::vector<fileinfo>       s_addFiles;
 std::vector<std::string>    s_rmFiles;
 
+static bool                 s_resumeMain = true;
+
 void compareUpdateResources(fileinfoList& inapp)
 {
     //compare diff
@@ -68,7 +70,6 @@ void* revConsoleLoop(void * p)
     {
         if (s_consoleSocket.Select() != 0) continue;
         
-        bool resumeMain = true;
         char check[2] = {'\0'};
         int ret = s_consoleSocket.Recv(check, 1, 0);
         if (ret <= 0) continue;
@@ -124,6 +125,7 @@ void* revConsoleLoop(void * p)
             {
                 printf("%s\n", buf);
             }
+            s_resumeMain = true;
             
             delete [] buf;
         }
@@ -146,29 +148,14 @@ void* revConsoleLoop(void * p)
                 last++;
             } while (buf[last - 1] != '\n' && buf[last - 1] != 0);
             
-//            printf("char value = \n");
-//            for (int i = 0; i < last; i++)
-//            {
-//                printf("%c ", buf[i]);
-//            }
-//            printf("\n");
-//            printf("int value = \n");
-//            for (int i = 0; i < last; i++)
-//            {
-//                printf("%d ", buf[i]);
-//            }
-//            printf("\n");
-            
-            if (last == 3 && buf[0] == '>' && buf[1] == ' ' && buf[2] == 0)
-                resumeMain = false;
-            
             std::cout << buf;
             
             delete [] buf;
         }
 
-        if (resumeMain)
+        if (s_resumeMain)
         {
+            LRLog("resume main \n");
             pthread_cond_signal(&s_mainCondition);
         }
     }
@@ -194,8 +181,22 @@ void consoleRevThreadBegin()
     pthread_create(&s_consoleRevThread, NULL, revConsoleLoop, NULL);
 }
 
+const char* kSendRequestCMD = "sendrequest";
 int sendConsoleCmd(const char* cmd)
 {
+    if (strlen(cmd) >= strlen(kSendRequestCMD)) {
+        
+        /*
+         if current is sendrequest cmd.
+         sendrequest must have correct args or app will crash, sendrequest can only send by
+         program, so we can ensure its args.
+         */
+        std::string str(cmd, strlen(kSendRequestCMD));
+        if (str.compare(kSendRequestCMD) == 0)
+        {
+            s_resumeMain = false;
+        }
+    }
     return s_consoleSocket.Send(cmd, (int)strlen(cmd));
 }
 

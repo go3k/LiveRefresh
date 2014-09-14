@@ -72,6 +72,7 @@ int main(int argc, const char * argv[])
     // insert code here...
     while (s_mainloop)
     {
+        LRLog("begin main loop.\n");
         /*
          Handle file sync.
          */
@@ -141,10 +142,12 @@ int main(int argc, const char * argv[])
             }
         }
         
+        LRLog("waiting for user input.\n");
         //comman process
         char cmdin[256], tmp[256];
         std::cin.getline(tmp, 256);
         sprintf(cmdin, "%s\n", tmp);
+        LRLog("user input finish.\n");
         
         //file server command
         int ret = 0;

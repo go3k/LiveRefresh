@@ -47,7 +47,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		BF197708199B5B090003FFC2 /* PthreadTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PthreadTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF197708199B5B090003FFC2 /* LiveRefresh */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LiveRefresh; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF19770B199B5B090003FFC2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		BF19770D199B5B090003FFC2 /* PthreadTest.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = PthreadTest.1; sourceTree = "<group>"; };
 		BF5EDB4A19BF44B9007C1591 /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
@@ -145,7 +145,7 @@
 		BF197709199B5B090003FFC2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BF197708199B5B090003FFC2 /* PthreadTest */,
+				BF197708199B5B090003FFC2 /* LiveRefresh */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -297,9 +297,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		BF197707199B5B090003FFC2 /* PthreadTest */ = {
+		BF197707199B5B090003FFC2 /* LiveRefresh */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = BF197711199B5B090003FFC2 /* Build configuration list for PBXNativeTarget "PthreadTest" */;
+			buildConfigurationList = BF197711199B5B090003FFC2 /* Build configuration list for PBXNativeTarget "LiveRefresh" */;
 			buildPhases = (
 				BF197704199B5B090003FFC2 /* Sources */,
 				BF197705199B5B090003FFC2 /* Frameworks */,
@@ -309,9 +309,9 @@
 			);
 			dependencies = (
 			);
-			name = PthreadTest;
+			name = LiveRefresh;
 			productName = PthreadTest;
-			productReference = BF197708199B5B090003FFC2 /* PthreadTest */;
+			productReference = BF197708199B5B090003FFC2 /* LiveRefresh */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -323,7 +323,7 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = VincentChou;
 			};
-			buildConfigurationList = BF197703199B5B090003FFC2 /* Build configuration list for PBXProject "PthreadTest" */;
+			buildConfigurationList = BF197703199B5B090003FFC2 /* Build configuration list for PBXProject "LiveRefresh" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -335,7 +335,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				BF197707199B5B090003FFC2 /* PthreadTest */,
+				BF197707199B5B090003FFC2 /* LiveRefresh */,
 			);
 		};
 /* End PBXProject section */
@@ -452,7 +452,7 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/PthreadTest/protobuf-lite",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = LiveRefresh;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
@@ -465,7 +465,7 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/PthreadTest/protobuf-lite",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = LiveRefresh;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;
@@ -473,7 +473,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		BF197703199B5B090003FFC2 /* Build configuration list for PBXProject "PthreadTest" */ = {
+		BF197703199B5B090003FFC2 /* Build configuration list for PBXProject "LiveRefresh" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BF19770F199B5B090003FFC2 /* Debug */,
@@ -482,7 +482,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		BF197711199B5B090003FFC2 /* Build configuration list for PBXNativeTarget "PthreadTest" */ = {
+		BF197711199B5B090003FFC2 /* Build configuration list for PBXNativeTarget "LiveRefresh" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BF197712199B5B090003FFC2 /* Debug */,

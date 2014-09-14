@@ -13,6 +13,13 @@
 //#include <vector>
 #include <map>
 
+#define LRLOG_ENABLE 0
+#if LRLOG_ENABLE
+#define LRLog(format,...) printf(format,##__VA_ARGS__)
+#else
+#define LRLog(format,...)
+#endif
+
 extern const char* projectFolder;
 
 typedef std::pair<std::string, long> fileinfo;
