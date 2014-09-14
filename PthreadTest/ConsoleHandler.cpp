@@ -169,7 +169,6 @@ void* revConsoleLoop(void * p)
 
         if (resumeMain)
         {
-            printf("resume main thread.\n");
             pthread_cond_signal(&s_mainCondition);
         }
     }

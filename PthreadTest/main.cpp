@@ -24,12 +24,11 @@ pthread_cond_t              s_fsCondition;
 extern std::vector<fileinfo>        s_addFiles;
 extern std::vector<std::string>     s_rmFiles;
 
-void sendConsoleCMD(Json::Value& json)
+void sendJsonConsoleCMD(Json::Value& json)
 {
     Json::FastWriter jswriter;
     std::string sd_cmd = jswriter.write(json);
     sd_cmd.insert(0, "sendrequest ");
-    sd_cmd.append("\n");
     sendConsoleCmd(sd_cmd.c_str());
 }
 
@@ -73,7 +72,6 @@ int main(int argc, const char * argv[])
     // insert code here...
     while (s_mainloop)
     {
-        printf("main loop begin.\n");
         /*
          Handle file sync.
          */
@@ -92,7 +90,7 @@ int main(int argc, const char * argv[])
             }
             request_args["files"] = rmfiles;
             
-            sendConsoleCMD(request_args);
+            sendJsonConsoleCMD(request_args);
             s_rmFiles.clear();
         }
         
@@ -128,11 +126,11 @@ int main(int argc, const char * argv[])
                     //precomfile
                     Json::Value precom;
                     precom["cmd"] = "precompile"; precom["modulefiles"] = reloads;
-                    sendConsoleCMD(precom);
+                    sendJsonConsoleCMD(precom);
                     //reload
                     Json::Value reload;
                     reload["cmd"] = "reload"; reload["modulefiles"] = reloads;
-                    sendConsoleCMD(reload);
+                    sendJsonConsoleCMD(reload);
                     printf("reload\n");
                 }
             }
@@ -143,14 +141,10 @@ int main(int argc, const char * argv[])
             }
         }
         
-        printf("wait for user input.\n");
-        
         //comman process
         char cmdin[256], tmp[256];
         std::cin.getline(tmp, 256);
         sprintf(cmdin, "%s\n", tmp);
-        
-        printf("user input finish.\n");
         
         //file server command
         int ret = 0;

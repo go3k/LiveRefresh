@@ -51,9 +51,12 @@ void* revFSLoop(void * p)
         
         runtime::FileSendComplete fsComp;
         fsComp.ParseFromArray(protoBuf, protolength.uint16_type);
-        printf("send file %s, result %d \n",
+        
+        const char* ksucess = "sucess";
+        if (fsComp.result() != 0) ksucess = "failed";
+        printf("send file %s result %s \n",
                fsComp.file_name().c_str(),
-               fsComp.result());
+               ksucess);
         delete [] protoBuf;
         
         for (std::vector<fileinfo>::iterator i = s_addFiles.begin(); i != s_addFiles.end(); i++)
