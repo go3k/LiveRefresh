@@ -14,7 +14,7 @@
 
 #define TRAVERSE_DEBUG 0
 
-const char* projectFolder = "/Users/Vincent/Documents/cocos/CocosJSGame";
+const char* projectFolder = "";
 
 long getFileModifyTime(const char* file)
 {

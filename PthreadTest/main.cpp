@@ -49,7 +49,14 @@ int main(int argc, const char * argv[])
         printf("arg = %s\n", arg);
     }
     
-    const char* deviceip = "127.0.0.1";
+    if (argc < 3)
+    {
+        printf("Usage: LiveRefresh <device ip address> <project folder>");
+        return 0;
+    }
+    
+    const char* deviceip = argv[1];
+    projectFolder = argv[2];
 
     pthread_mutex_init(&s_mainMutex, NULL);
     pthread_cond_init(&s_mainCondition, NULL);
