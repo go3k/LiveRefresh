@@ -24,7 +24,8 @@ With this tools you can enjoy this feature freely with any code editor!!!
 	
 4. Then, you can use Cocos Console command, such as `fps off`、`version` or your self custom commands.
 
-5. Do some modifications with your code or resources, then `refresh` command will check the diff between your project foler on your mac and your app r/w folder on your phone/simulator, and update files then reload. So, you could update your code lively! Enjoy it!!
+5. Do some modifications with your code or resources, then type `refresh` command will check the diff between your project foler on your mac and your app r/w folder on your phone/simulator, and update files then reload. So, you could update your code lively! Enjoy it!!
+    > Notice: Every time you modify your code, you need run `refresh` command to make them take effect.
 
 ## Implementation
 
